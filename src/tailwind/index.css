@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  user-select: none;
+}
+
+@layer base {
+  input, button {
+    @apply outline-none !important;
+  }
+}

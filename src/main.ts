@@ -1,7 +1,15 @@
 import { createApp } from 'vue'
-import './style.css'
 import App from './App.vue'
-import PluginIcon from './plugins/vuetify';
+
+import router from './routes/index';
+
+import './tailwind/index.css'
+
+import PluginIcon from './plugins/vuetify'
+import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
+
+import * as dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn' // import locale
 
 // Vuetify
 import 'vuetify/styles'
@@ -15,4 +23,6 @@ const vuetify = createVuetify({
   ...PluginIcon,
 })
 
-createApp(App).use(vuetify).mount('#app')
+dayjs.locale('zh-cn') // use locale
+
+createApp(App).use(router).use(vuetify).mount('#app')
