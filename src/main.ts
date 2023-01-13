@@ -5,24 +5,11 @@ import router from './routes/index';
 
 import './tailwind/index.css'
 
-import PluginIcon from './plugins/vuetify'
-import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
+// dayjs.locale('zh-cn') // use locale
 
-import * as dayjs from 'dayjs'
-import 'dayjs/locale/zh-cn' // import locale
+const APP_CONTEXT = createApp(App);
 
-// Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+// APP_CONTEXT.config.globalProperties.$dayjs = dayjs;
 
-const vuetify = createVuetify({
-  components,
-  directives,
-  ...PluginIcon,
-})
-
-dayjs.locale('zh-cn') // use locale
-
-createApp(App).use(router).use(vuetify).mount('#app')
+APP_CONTEXT.use(router)
+APP_CONTEXT.mount('#app')
