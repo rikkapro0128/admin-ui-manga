@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { fileURLToPath, URL } from "url";
 
 // const vuetify = createVuetify()
 
@@ -17,4 +18,9 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
   ],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
 })
