@@ -22,13 +22,17 @@
 </template>
 
 <script setup lang="ts">
-import { Events, ref } from 'vue';
+import { ref } from 'vue';
 import { DocumentPlusIcon, XCircleIcon } from '@heroicons/vue/20/solid';
 
 const highlight = ref<boolean>(false);
 const file = ref<HTMLInputElement | null>(null)
 const pickFile = ref<File>();
 const linkFile = ref<string>('')
+
+const emit = defineEmits<{
+  (e: 'change', file: File | null): void
+}>();
 
 const props = defineProps({
   size: {
@@ -49,13 +53,15 @@ const onFileChange = (event: Event) => {
   if (listFile?.length) {
     pickFile.value = listFile[0];
     linkFile.value = URL.createObjectURL(listFile[0]);
+    emit('change', listFile[0]);
   }
-
-  // linkFile = URL.createObjectURL();
 }
 
 const clearImage = () => {
-  if (linkFile.value) { URL.revokeObjectURL(linkFile.value); pickFile.value = undefined; file.value = null; linkFile.value = ""; }
+  if (linkFile.value) {
+    URL.revokeObjectURL(linkFile.value); pickFile.value = undefined; file.value = null; linkFile.value = "";
+    emit('change', null);
+  }
 }
 
 const parserTypeFile = (types: Array<String>, prefix: string = '') => {
