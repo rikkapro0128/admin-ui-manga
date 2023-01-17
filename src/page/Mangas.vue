@@ -1,18 +1,19 @@
 <template>
   <div>
     <div class="flex justify-between">
-      <span>Truyện đã đăng {{ mangaStore.count }}</span>
-      <el-button @click="store.commit('mangas/increment')">click</el-button>
+      <span>Truyện đã đăng</span>
+      <el-pagination background layout="prev, pager, next" :total="(mangaStore.count / mangaStore.option.limit) * 10"
+        @current-change="changeIndexViewManga" />
       <!-- <el-button-group class="ml-4"> -->
-      <el-dropdown size="large" split-button type="primary">
-        {{ pickViewRow }} hàng
+      <el-dropdown size="medium" split-button type="primary">
+        {{ mangaStore.option.limit }} hàng
         <el-icon class="ml-1">
           <EyeIcon />
         </el-icon>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item @click="pickViewRow !== item ? pickViewRow = item : pickViewRow" v-for="item in viewRow"
-              :key="item">{{ item }} hàng</el-dropdown-item>
+            <el-dropdown-item @click="pickViewRow(item)" v-for="item in viewRow" :key="item">{{ item }}
+              hàng</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -89,27 +90,26 @@ const store = useStore();
 const mangaStore = computed(() => store.state.mangas);
 const mangas = ref();
 const loading = ref<boolean>(true);
-const viewRow = ref([5, 10]);
-const pickViewRow = ref(viewRow.value[0]);
-const queryOptions = reactive({
-  limit: 10,
-  skip: 1,
-});
+const viewRow = ref([5, 10, 15]);
 
 const getMangas = async () => {
-  const res = await fetch(`${config.development.baseUrl}/v1/get/mangas?skip=${queryOptions.skip}&limit=${queryOptions.limit}`);
-  const data = await res.json();
-  mangas.value = parserMangaToTable(data)
-
+  mangas.value = await store.dispatch('mangas/getMangas');
   loading.value = false;
 }
 
-const parserMangaToTable = (data: Array<RawMangaResponse>): Array<any> => {
-  return data.map(item => Object.keys(parserKey).reduce((vals, key) => key in item ? { ...vals, [parserKey[key as keyof typeof parserKey]]: item[key as keyof typeof item] } : { ...vals, [parserKey[key as keyof typeof parserKey]]: 'dữ liệu trống' }, {}))
+const pickViewRow = async (value: any) => {
+  await store.dispatch('mangas/changeOption', { limit: value });
 }
 
 const handleViewDetail = () => {
   console.log('View details');
+}
+
+const changeIndexViewManga = async (value: number) => {
+  loading.value = true;
+  await store.dispatch('mangas/changeOption', { skip: ((value - 1) * mangaStore.value.option.limit) });
+  mangas.value = await store.dispatch('mangas/getMangas');
+  loading.value = false;
 }
 
 // run data fetching

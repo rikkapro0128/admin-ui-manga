@@ -18,7 +18,7 @@
       </el-drawer>
       <el-main>
         <router-view v-slot="{ Component, route }">
-          <transition name="fade">
+          <transition mode="out-in" name="fade">
             <component :is="Component" :key="route.path" />
           </transition>
         </router-view>
@@ -69,5 +69,15 @@ const clickMenuItem = (key: string) => {
 .capitalize {
   text-transform: capitalize !important;
   text-align: left;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
