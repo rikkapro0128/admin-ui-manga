@@ -16,8 +16,10 @@
     "flickr-sdk": "^6.0.0",
     "path": "^0.12.7",
     "url": "^0.11.0",
+    "vite-svg-loader": "^4.0.0",
     "vue": "^3.2.45",
     "vue-router": "4.1.6",
+    "vuedraggable": "^4.1.0",
     "vuex": "^4.0.2",
     "yarn": "^1.22.19"
   },

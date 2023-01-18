@@ -12,6 +12,10 @@ export interface State {
   }
 }
 
+interface RemoveManga {
+  id: string;
+}
+
 enum SortType {
   ascending = 'asc',
   descending = 'desc',
@@ -50,6 +54,20 @@ export default {
       commit('setCountManga', data.count);
       commit('concatManga', newManga);
       return getters.getViewManga;
+    },
+    async removeManga({ commit, dispatch }: ActionContext<State, any>, payload: RemoveManga) {
+      try {
+        const res = await fetch(`${config.development.baseUrl}/v1/remove/manga/${payload.id}`, { method: 'DELETE' });
+        const data = await res.json();
+        await dispatch('getMangas');
+        if(data.message === 'remove successfully.') {
+          return true;
+        }else {
+          return false;
+        }
+      } catch (error) {
+        throw new Error((error as Error).message);
+      }
     },
     clearManga({ commit }: ActionContext<State, any>) {
       commit('clearManga');
