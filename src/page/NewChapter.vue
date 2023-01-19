@@ -16,7 +16,6 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import draggable from 'vuedraggable'
 import FilesUpload from '@/components/FilesUpload.vue';
 
 const form = reactive({
