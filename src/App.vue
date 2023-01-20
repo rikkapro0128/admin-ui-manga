@@ -2,7 +2,7 @@
 <template>
   <el-container class="max-w-[1200px] mx-auto">
     <el-header class=" flex items-center justify-between">
-      <div>
+      <div @click="$router.push({ name: 'mangas' })" class="cursor-pointer">
         <!-- <el-button :icon="Bars3Icon" size="large" circle link color="#fff" /> -->
         <span>Dashboard</span>
       </div>

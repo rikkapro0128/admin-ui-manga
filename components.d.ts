@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAutoResizer: typeof import('element-plus/es')['ElAutoResizer']
+    ElBtn: typeof import('element-plus/es')['ElBtn']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElButtonGroup: typeof import('element-plus/es')['ElButtonGroup']
     ElContainer: typeof import('element-plus/es')['ElContainer']
@@ -29,6 +30,7 @@ declare module '@vue/runtime-core' {
     ElPageHeader: typeof import('element-plus/es')['ElPageHeader']
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElSelect: typeof import('element-plus/es')['ElSelect']
+    ElSpace: typeof import('element-plus/es')['ElSpace']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTableV2: typeof import('element-plus/es')['ElTableV2']
