@@ -16,14 +16,14 @@
         <span class="ml-2 capitalize font-semibold block">mô tả</span>
         <div class="border-2 mt-2 rounded-lg">
           <textarea class="max-h-52 h-52 overflow-y-scroll border-none w-full p-2 outline-none"
-            v-model="form.decription" placeholder="..." resize="none" name="decription"></textarea>
+            v-model="form.decription" placeholder="viết gì đó vào đây..." resize="none" name="decription"></textarea>
         </div>
       </div>
     </div>
     <div class="grid grid-cols-12 mt-5 gap-2">
       <div class="col-span-4 flex flex-col">
         <span class="ml-2 mb-2 capitalize font-semibold">Tên truyện</span>
-        <el-input v-model="form.name" placeholder="..." size="large" :suffix-icon="PencilSquareIcon" />
+        <el-input v-model="form.name" placeholder="tên là gì...?" size="large" :suffix-icon="PencilSquareIcon" />
       </div>
       <div class="col-span-4 flex flex-col">
         <span class="ml-2 mb-2 capitalize font-semibold">Ngày đăng</span>
@@ -32,7 +32,7 @@
       </div>
     </div>
     <div class="flex justify-end">
-      <el-button @click="submitInfo" type="primary" plain>Tải lên
+      <el-button @click="submitInfo" type="primary">Tải lên
         <el-icon class="el-icon--right">
           <ArrowUpTrayIcon />
         </el-icon>
@@ -58,6 +58,7 @@ interface FormType {
 
 interface JsonType {
   message: string,
+  id: string,
 }
 interface ErrorType {
   [key: string]: string,
@@ -72,7 +73,7 @@ const listError: ErrorType = {
 const form = reactive<FormType>({
   name: '',
   decription: '',
-  datePicker: undefined,
+  datePicker: Date.now(),
   avatar: null,
   cover: null
 })
@@ -112,28 +113,63 @@ const coverChange = (file: File | null) => {
 
 const submitInfo = async () => {
   try {
-    const newForm = new FormData();
-    if (form.name) { newForm.append('name', form.name); } else {
-      return;
-    }
-    newForm.append('desc', form.decription);
-    if (form.avatar) newForm.append('avatar', form.avatar);
-    if (form.cover) newForm.append('cover', form.cover);
-    const res = await fetch(`${config.development.baseUrl}/v1/new/manga`, {
-      method: 'POST',
-      body: newForm,
-    });
-    const json: JsonType = await res.json();
-    if (json.message === 'created manga.') {
+    if (form.name) {
+      const res = await fetch(`${config.development.baseUrl}/v1/new/manga`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          desc: form.decription,
+          postAt: form.datePicker,
+        }),
+      });
+      const json: JsonType = await res.json();
+      if (json.message === 'created manga.') {
+        let message = 'Manga đã được tạo';
+        if (json.id) {
+          const newForm = new FormData();
+          if (form.avatar) {
+            newForm.append('file', form.avatar);
+            const res = await fetch(`${config.development.baseUrl}/v1/upload/avatar/manga/${json.id}`, {
+              method: 'POST',
+              body: newForm
+            });
+            if (res.ok) { message = 'Avatar, ' + message };
+          }
+          if (form.cover) {
+            newForm.set('file', form.cover);
+            const res = await fetch(`${config.development.baseUrl}/v1/upload/cover/manga/${json.id}`, {
+              method: 'POST',
+              body: newForm
+            });
+            if (res.ok) { message = 'Cover, ' + message };
+          }
+          ElNotification({
+            title: 'Thành công',
+            message: message,
+            type: 'success',
+          })
+        }
+
+      } else if (json.message === 'manga is duplicated.') {
+        ElNotification({
+          title: 'Lỗi rồi',
+          message: 'Manga đã được tạo trước đó, bạn có thể tạo nó với tên khác.',
+          type: 'error',
+        })
+      } else {
+        ElNotification({
+          title: 'Cảnh báo',
+          message: 'Phản hồi không phù hợp.',
+          type: 'warning',
+        })
+      }
+    } else {
       ElNotification({
-        title: 'Thành công',
-        message: 'Manga đã được tạo thành công',
-        type: 'success',
-      })
-    } else if (json.message in listError) {
-      ElNotification({
-        title: 'Lỗi rồi',
-        message: listError[json.message],
+        title: 'Không được rồi',
+        message: 'Tên manga không được để trống.',
         type: 'error',
       })
     }

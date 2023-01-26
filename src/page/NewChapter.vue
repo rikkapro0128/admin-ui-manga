@@ -1,12 +1,19 @@
 <template>
   <div>
-    <span>Tạo chapter</span>
-    <div class="mt-4 grid grid-cols-2 gap-2">
-      <el-input class="col-span-1" v-model="form.name" placeholder="Tên chapter | (không bắt buộc)" size="large" />
-      <div class="gap-2 items-center flex">
-        <el-input class="text-center font-semibold" v-model="form.num" disabled size="large"
-          input-style="text-align: center;" />
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item :to="{ name: 'mangas' }">Danh sách</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $route.query.name }}</el-breadcrumb-item>
+      <el-breadcrumb-item>tạo chapter</el-breadcrumb-item>
+    </el-breadcrumb>
+    <div class="mt-4 flex -mx-2">
+      <el-input class="mx-2" input-style="height: fit-content;" v-model="form.name"
+        placeholder="Tên chapter | (không bắt buộc)" />
+      <div class="mx-2 items-center flex flex-nowrap h-fit">
+        <span class="mr-4 flex-1 text-slate-600 whitespace-nowrap">Chapter tiếp theo sẽ là: </span>
+        <el-input-number v-model="form.num" :min="form.minNum" />
       </div>
+      <el-input class="mx-2" :autosize="{ minRows: 6 }" v-model="form.desc" placeholder="Mô tả | (không bắt buộc)"
+        type="textarea" />
     </div>
     <div class="mt-4">
       <FilesUpload @push-file="uploadChapter" />
@@ -18,54 +25,89 @@
 import { reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import FilesUpload from '@/components/FilesUpload.vue';
-import { ElNotification } from 'element-plus'
+import { ElNotification, ElMessage, ElLoading } from 'element-plus'
 
 import { config } from '@/env/index';
 
 const route = useRoute();
 const form = reactive({
   name: '',
-  num: 17,
-  placeholder: `Tự động tạo chapter tiếp theo | 17`,
+  desc: '',
+  num: null,
+  minNum: 0,
+  placeholder: '',
 })
 
 const uploadChapter = async (files: Array<any> | undefined) => {
-  const idManga = route.params.id;
-  if (files?.length) {
-    try {
-      const newForm = new FormData();
-      for (let x = 0; x < files?.length; x++) {
-        newForm.append('files', files[x].file);
-      }
-      const res = await fetch(`${config.development.baseUrl}/v1/upload/chapter?mangaId=${idManga}&numberChapter=${form.num}`, {
-        method: 'POST',
-        body: newForm,
-      });
-      const payload = await res.json();
-      console.log(payload);
-      if (payload?.message === 'chapter is duplicated.') {
-        ElNotification({
-          title: 'Không ổn',
-          message: 'Chapter này có trong hệ thống.',
-          type: 'warning',
-        })
-      } else if ((payload as Array<any>).length === files.length) {
-        ElNotification({
-          title: 'Thành công',
-          message: 'Chapter đã được tạo thành công.',
-          type: 'success',
-        })
-      }
-    } catch (error) {
-      console.log(error);
-      ElNotification({
-        title: 'Lỗi rồi',
-        message: 'Đã xảy ra lỗi khi upload chapter.',
-        type: 'error',
-      })
+  const idManga = route.params.id as string;
+  const instanceLoading = ElLoading.service();
+  instanceLoading.text.value = 'Đang tạo | chapter...';
+  const payloadID = await createChapter(idManga);
+  instanceLoading.text.value = 'Đã tạo | chapter...';
+  if (payloadID && files?.length) {
+    const newForm = new FormData();
+    for (const file of files) {
+      newForm.append('files', file.file);
     }
+    console.log(newForm);
+
+    // const res = await fetch(`${config.development.baseUrl}/v1/upload/chapter/${payloadID}`, {
+    //   method: 'POST',
+    //   body: newForm,
+    // })
+    // const { message } = await res.json();
+    // if (res.ok && message === 'files uploaded.') {
+    //   ElNotification({
+    //     title: 'Thành công',
+    //     message: 'Đã tạo thành công chapter',
+    //     type: 'success',
+    //   })
+    // } else {
+    //   ElNotification({
+    //     title: 'Có lỗi',
+    //     message: 'Đã có lỗi xảy ra khi upload chapter này',
+    //     type: 'error',
+    //   })
+    // }
+    // instanceLoading.close();
+  }
+
+}
+
+const createChapter = async (idManga: string) => {
+  const res = await fetch(`${config.development.baseUrl}/v1/new/chapter`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      idManga,
+      desc: form.desc,
+      name: form.name,
+      number: form.num,
+    })
+  })
+  const { id } = await res.json();
+  return id ? id : undefined;
+}
+
+const getPresentChapter = async () => {
+  const idManga = route.params.id;
+  const res = await fetch(`${config.development.baseUrl}/v1/get/manga/${idManga}/num-chapter-present`, {
+    method: 'GET',
+  });
+  const { present } = await res.json();
+  console.log(present);
+
+  if (present >= 0) {
+    const temp = present + 1;
+    form.num = temp;
+    form.minNum = temp;
+    form.placeholder = `Tự động tạo chapter tiếp theo | ${temp}`;
   }
 }
+
+getPresentChapter();
 
 </script>
 
