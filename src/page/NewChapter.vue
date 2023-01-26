@@ -16,13 +16,13 @@
         type="textarea" />
     </div>
     <div class="mt-4">
-      <FilesUpload @push-file="uploadChapter" />
+      <FilesUpload ref="filesUpload" @push-file="uploadChapter" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import FilesUpload from '@/components/FilesUpload.vue';
 import { ElNotification, ElMessage, ElLoading } from 'element-plus'
@@ -30,6 +30,7 @@ import { ElNotification, ElMessage, ElLoading } from 'element-plus'
 import { config } from '@/env/index';
 
 const route = useRoute();
+const filesUpload = ref<InstanceType<typeof FilesUpload> | null>(null)
 const form = reactive({
   name: '',
   desc: '',
@@ -46,30 +47,30 @@ const uploadChapter = async (files: Array<any> | undefined) => {
   instanceLoading.text.value = 'Đã tạo | chapter...';
   if (payloadID && files?.length) {
     const newForm = new FormData();
-    for (const file of files) {
-      newForm.append('files', file.file);
+    for (let x = 0; x < files?.length; x++) {
+      newForm.append('files', files[x].file);
     }
-    console.log(newForm);
-
-    // const res = await fetch(`${config.development.baseUrl}/v1/upload/chapter/${payloadID}`, {
-    //   method: 'POST',
-    //   body: newForm,
-    // })
-    // const { message } = await res.json();
-    // if (res.ok && message === 'files uploaded.') {
-    //   ElNotification({
-    //     title: 'Thành công',
-    //     message: 'Đã tạo thành công chapter',
-    //     type: 'success',
-    //   })
-    // } else {
-    //   ElNotification({
-    //     title: 'Có lỗi',
-    //     message: 'Đã có lỗi xảy ra khi upload chapter này',
-    //     type: 'error',
-    //   })
-    // }
-    // instanceLoading.close();
+    const res = await fetch(`${config.development.baseUrl}/v1/upload/chapter/${payloadID}`, {
+      method: 'POST',
+      body: newForm,
+    })
+    const { message } = await res.json();
+    instanceLoading.close();
+    if (res.ok && message === 'files uploaded.') {
+      ElNotification({
+        title: 'Thành công',
+        message: 'Đã tạo thành công chapter',
+        type: 'success',
+      })
+      filesUpload.value?.setupDefault();
+    } else {
+      ElNotification({
+        title: 'Có lỗi',
+        message: 'Đã có lỗi xảy ra khi upload chapter này',
+        type: 'error',
+      })
+    }
+    getPresentChapter();
   }
 
 }
@@ -97,8 +98,6 @@ const getPresentChapter = async () => {
     method: 'GET',
   });
   const { present } = await res.json();
-  console.log(present);
-
   if (present >= 0) {
     const temp = present + 1;
     form.num = temp;

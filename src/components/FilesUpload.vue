@@ -256,14 +256,17 @@ const removeAllFile = async () => {
       type: 'warning',
     }
   ).then(() => {
-    if (fileList.value?.length) {
-      fileList.value.forEach((file) => {
-        URL.revokeObjectURL(file.src);
-      })
-    }
     setupDefault();
   })
     .catch(() => { });
+}
+
+const clearCachedImage = () => {
+  if (fileList.value?.length) {
+    fileList.value.forEach((file) => {
+      URL.revokeObjectURL(file.src);
+    })
+  }
 }
 
 const setupDefault = () => {
@@ -272,6 +275,7 @@ const setupDefault = () => {
   preview.value = false;
   imageView.indexActive = null;
   imageView.middle = '';
+  clearCachedImage();
 }
 
 const onFileChange = (event: Event) => {
@@ -302,6 +306,11 @@ const handleStartDrag = () => {
   dragField.value = true;
   imageView.indexActive = null;
 }
+
+defineExpose({
+  setupDefault,
+})
+
 </script>
 
 <style scoped>

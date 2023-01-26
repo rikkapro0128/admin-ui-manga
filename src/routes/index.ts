@@ -1,17 +1,19 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import Mangas from '../page/Mangas.vue';
+import Mangas from '@/page/Mangas.vue';
+import ListChapter from '@/page/ListChapter.vue';
 import NewChapter from '@/page/NewChapter.vue';
-import UploadManga from '../page/UploadManga.vue';
-import ReportError from '../page/ReportError.vue';
-import CreatePost from '../page/CreatePost.vue';
-import LoudSpeaker from '../page/LoudSpeaker.vue';
-import BadPage from '../page/BadPage.vue';
+import UploadManga from '@/page/UploadManga.vue';
+import ReportError from '@/page/ReportError.vue';
+import CreatePost from '@/page/CreatePost.vue';
+import LoudSpeaker from '@/page/LoudSpeaker.vue';
+import BadPage from '@/page/BadPage.vue';
 
 const routes = [
   { path: "/", name: 'mangas', component: Mangas },
   { path: "/upload-manga", name: 'upload-manga', component: UploadManga },
   { path: "/new-chapter/:id", name: 'create-chapter', component: NewChapter },
+  { path: "/list-chapter/:id", name: 'list-chapter', component: ListChapter },
   { path: "/report-error", name: 'report-error', component: ReportError },
   { path: "/create-post", name: 'create-post', component: CreatePost },
   { path: "/loud-speaker", name: 'loud-speaker', component: LoudSpeaker },

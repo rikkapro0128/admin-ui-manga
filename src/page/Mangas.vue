@@ -29,12 +29,45 @@
     </div>
     <el-table stripe border :data="mangaStore.value" class="mt-4" v-loading="loading" element-loading-text="Đang tải..."
       style="width: 100%;" table-layout="fixed">
-      <el-table-column type="selection" width="38" />
-      <el-table-column fixed prop="name" label="Tên" width="160"></el-table-column>
-      <el-table-column prop="desc" label="Mô tả"></el-table-column>
-      <el-table-column prop="createAt" label="Ngày tạo"></el-table-column>
-      <el-table-column prop="updateAt" label="Ngày cập nhật"></el-table-column>
-      <el-table-column fixed="right" label="Hành động" width="160">
+      <el-table-column align="center" type="selection" width="38" />
+      <el-table-column align="center" fixed prop="name" label="Tên" width="160"></el-table-column>
+      <el-table-column align="center" prop="desc" label="Mô tả">
+        <template #default="{ row }">
+          <el-tooltip hide-after="50" effect="dark" :content="row.desc" placement="right">
+            <template #content>
+              <div class="max-w-[320px] max-h-[150px] overflow-x-hidden overflow-y-scroll">
+                {{ row.desc }}
+              </div>
+            </template>
+            <div class="line-clamp">
+              {{ row.desc }}
+            </div>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="createAt" label="Ngày tạo">
+        <template #default="{ row }">
+          <div class="line-clamp">
+            {{ $dayjs(row.createAt).format('HH:mm - DD/MM/YYYY') }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="updateAt" label="Ngày cập nhật">
+        <template #default="{ row }">
+          <div class="line-clamp">
+            {{ $dayjs(row.updateAt).format('HH:mm - DD/MM/YYYY') }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="postAt" label="Phát hành">
+        <template #default="{ row }">
+          <div class="line-clamp">
+            {{ $dayjs(row.postAt).format('HH:mm - DD/MM/YYYY') }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="chapterPresent" label="Chapter hiện tại"></el-table-column>
+      <el-table-column align="center" fixed="right" label="Hành động" width="160">
         <template #default="scope">
           <el-dropdown class="w-full" size="medium" trigger="click">
             <el-button class="w-full" type="primary">
@@ -45,10 +78,22 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="redirectToNewChapter(scope.row)">Cập nhật chapter</el-dropdown-item>
-                <el-dropdown-item @click="removeManga(scope.row)"
-                  class="bg-red-500 text-slate-100">Xoá</el-dropdown-item>
-                <el-dropdown-item>Chỉnh sửa</el-dropdown-item>
+                <el-dropdown-item class="flex justify-between" @click="redirectToNewChapter(scope.row)">
+                  <span class="mr-2">Cập nhật chapter</span>
+                  <ArrowPathIcon class="w-5 h-5" />
+                </el-dropdown-item>
+                <el-dropdown-item class="flex justify-between" @click="redirectToListChapter(scope.row)">
+                  <span class="mr-2">Danh sách chapter</span>
+                  <ListBulletIcon class="w-5 h-5" />
+                </el-dropdown-item>
+                <el-dropdown-item @click="removeManga(scope.row)" class="bg-red-500 flex justify-between">
+                  <span class="mr-2 text-slate-100">Xoá</span>
+                  <TrashIcon class="w-5 h-5 text-slate-100" />
+                </el-dropdown-item>
+                <el-dropdown-item class="flex justify-between">
+                  <span class="mr-2">Chỉnh sửa</span>
+                  <PencilSquareIcon class="w-5 h-5" />
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -68,37 +113,16 @@
 import { reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { config } from '@/env/index';
-import { EyeIcon, ChevronDownIcon, TrashIcon } from '@heroicons/vue/24/solid'
-import { useStore, mapState } from 'vuex';
+import { EyeIcon, ChevronDownIcon, TrashIcon, ArrowPathIcon, ListBulletIcon, PencilSquareIcon } from '@heroicons/vue/24/solid'
+import { useStore } from 'vuex';
 // import { ElCheckbox } from 'element-plus'
 
 // import type { FunctionalComponent } from 'vue'
 import { ElMessageBox, ElNotification } from 'element-plus'
 
-const parserKey = {
-  id: 'id',
-  name: 'name',
-  desc: 'desc',
-  createdAt: 'createAt',
-  updatedAt: 'updateAt',
-}
-
 enum SortType {
   ascending = 'asc',
   descending = 'desc',
-}
-
-interface QueryOptions {
-  limit: number,
-  skip: number,
-  sort?: SortType,
-}
-
-interface RawMangaResponse {
-  id: string,
-  name: string,
-  createdAt: string,
-  updatedAt: string,
 }
 
 interface MangaTable {
@@ -128,6 +152,10 @@ const pickViewRow = async (value: any) => {
 
 const redirectToNewChapter = (mangaInstance: MangaTable) => {
   router.push({ name: 'create-chapter', params: { id: mangaInstance.id }, query: { name: mangaInstance.name } });
+}
+
+const redirectToListChapter = (mangaInstance: MangaTable) => {
+  router.push({ name: 'list-chapter', params: { id: mangaInstance.id }, query: { name: mangaInstance.name } });
 }
 
 const removeManga = (mangaInstance: MangaTable) => {
@@ -162,6 +190,7 @@ const removeManga = (mangaInstance: MangaTable) => {
 }
 
 const handleViewDetail = () => {
+
   console.log('View details');
 }
 
@@ -178,5 +207,10 @@ getMangas();
 </script>
 
 <style scoped>
-
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 </style>

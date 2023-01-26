@@ -4,6 +4,7 @@ const parserKey = {
   desc: 'desc',
   createdAt: 'createAt',
   updatedAt: 'updateAt',
+  chapterPresent: 'chapterPresent',
 }
 
 interface RawMangaResponse {
@@ -11,13 +12,14 @@ interface RawMangaResponse {
   name: string,
   createdAt: string,
   updatedAt: string,
+  chapterPresent: string,
 }
 
 export const parserMangaToTable = (data: Array<RawMangaResponse>): Array<any> => {
   return data.map(item => Object.keys(parserKey).reduce((vals, key) => key in item ? { ...vals, [parserKey[key as keyof typeof parserKey]]: item[key as keyof typeof item] } : { ...vals, [parserKey[key as keyof typeof parserKey]]: 'dữ liệu trống' }, {}))
 }
 
-export const formatBytes = (bytes, decimals = 2) => {
+export const formatBytes = (bytes: number, decimals = 2) => {
   if (!+bytes) return '0 Bytes'
 
   const k = 1024
