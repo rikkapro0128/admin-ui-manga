@@ -42,6 +42,7 @@ declare module '@vue/runtime-core' {
     FilesUpload: typeof import('./src/components/FilesUpload.vue')['default']
     FileUpload: typeof import('./src/components/FileUpload.vue')['default']
     Floder: typeof import('./src/components/Icon/Floder.vue')['default']
+    Loading: typeof import('./src/components/Loading.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

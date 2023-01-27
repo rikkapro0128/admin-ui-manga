@@ -33,7 +33,7 @@
       <el-table-column align="center" fixed prop="name" label="Tên" width="160"></el-table-column>
       <el-table-column align="center" prop="desc" label="Mô tả">
         <template #default="{ row }">
-          <el-tooltip hide-after="50" effect="dark" :content="row.desc" placement="right">
+          <el-tooltip :hide-after="50" effect="dark" :content="row.desc" placement="right">
             <template #content>
               <div class="max-w-[320px] max-h-[150px] overflow-x-hidden overflow-y-scroll">
                 {{ row.desc }}
